@@ -24,7 +24,7 @@ class LinearAutoencoder(nn.Module):
     def __init__(self, input_size, encoding_dim):
         super(LinearAutoencoder, self).__init__()
         # encoder
-        self.encoder = nn.sequential(
+        self.encoder = nn.Sequential(
             nn.Linear(input_size, encoding_dim*3),
             nn.ReLU(),
             nn.Linear(int(encoding_dim*3), int(encoding_dim*2)),
@@ -32,7 +32,7 @@ class LinearAutoencoder(nn.Module):
             nn.Linear(encoding_dim*2, encoding_dim)
         )
         # decoder
-        self.decoder = nn.sequential(
+        self.decoder = nn.Sequential(
             nn.Linear(encoding_dim, encoding_dim*2),
             nn.ReLU(),
             nn.Linear(encoding_dim*2, encoding_dim*3),
@@ -54,7 +54,7 @@ class ConvAutoencoder(nn.Module):
     def __init__(self, number_filters):
         super(ConvAutoencoder, self).__init__()
         # encoder
-        self.encoder = nn.sequential(
+        self.encoder = nn.Sequential(
             nn.Conv1d(1, number_filters*3, kernel_size=3, stride=2, padding=0),
             nn.ReLU(),
             nn.Conv1d(number_filters*3, number_filters*2, kernel_size=3, stride=2, padding=0),
@@ -62,12 +62,12 @@ class ConvAutoencoder(nn.Module):
             nn.Conv1d(number_filters*2, number_filters, kernel_size=3, stride=2, padding=0)
         )
         # decoder
-        self.decoder = nn.sequential(
+        self.decoder = nn.Sequential(
             nn.ConvTranspose1d(number_filters, number_filters*2, kernel_size=3, stride=2, padding=0),
             nn.ReLU(),
             nn.ConvTranspose1d(number_filters*2, number_filters*3, kernel_size=3, stride=2, padding=0),
             nn.ReLU(),
-            nn.ConvTranspose1d(number_filters*3, 1, kernel_size=3, stride=2, padding=0),
+            nn.ConvTranspose1d(number_filters*3, 1, kernel_size=3, stride=2, padding=0, output_padding=1), # need out padding to get the right size
             nn.Sigmoid() # the feature values are between 0 and 1
         )
     def forward(self, x):
@@ -84,19 +84,20 @@ class ConvAutoencoder(nn.Module):
 class ConvLinearAutoencoder(nn.Module):
     def __init__(self, number_filters, encoding_dim):
         super(ConvLinearAutoencoder, self).__init__()
+        self.number_filters = number_filters
         # encoder
-        self.encoder = nn.sequential(
+        self.encoder = nn.Sequential(
             nn.Conv1d(1, number_filters*2, kernel_size=3, stride=2, padding=0),
             nn.ReLU(),
             nn.Conv1d(number_filters*2, number_filters, kernel_size=3, stride=2, padding=0),
             nn.ReLU(),
         ) 
         # bottleneck layer
-        self.fcencoder = nn.Linear(9990, encoding_dim)
-        self.fcdecoder = nn.Linear(encoding_dim, 9990)
+        self.fcencoder = nn.Linear(249*number_filters, encoding_dim)
+        self.fcdecoder = nn.Linear(encoding_dim, 249*number_filters)
 
         # decoder
-        self.decoder = nn.sequential(
+        self.decoder = nn.Sequential(
             nn.ConvTranspose1d(number_filters, number_filters*2, kernel_size=3, stride=2, padding=0),
             nn.ReLU(),
             nn.ConvTranspose1d(number_filters*2, 1, kernel_size=3, stride=2, padding=0),
@@ -105,10 +106,10 @@ class ConvLinearAutoencoder(nn.Module):
     def forward(self, x):
         x = x.unsqueeze(1)
         x = self.encoder(x)
-        x = x.view(-1, 9990)
+        x = x.view(-1, 249*self.number_filters)
         x = self.fcencoder(x)
         x = self.fcdecoder(x)
-        x = x.view(-1, 10, 999)
+        x = x.view(-1,self.number_filters, 249)
         x = self.decoder(x)
         x = x.squeeze(1)
         return x
