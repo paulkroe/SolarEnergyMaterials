@@ -2,7 +2,7 @@ import  argparse
 import fairseq
 from task import register_task
 from fairseq.tasks import FairseqTask
-from transformer.dataset import GraphormerDataset
+from transformer.dataset import ogbGraphormerDataset
 import sys
 
 
@@ -11,7 +11,7 @@ import sys
 
 # setsup task (e.g., load dictionaries)
 
-@register_task('GrpahPrediction')
+@register_task('GraphPrediction')
 class GraphPredictionTask(fairseq.tasks.FairseqTask):
     def __init__(self, config):
         super().__init__(config)
@@ -20,7 +20,7 @@ class GraphPredictionTask(fairseq.tasks.FairseqTask):
         if getattr(self.config, self.config.dataset_name, None) is None or getattr(self.config, self.config.dataset_source, None) is None or getattr(self.config, self.config.seed, None) is None:
             raise ValueError("Dataset name, source or seed not specified")
 
-        self.dm = GraphormerDataset(
+        self.dm = ogbGraphormerDataset(
             dataset_spec=config.datasset_name,
             dataset_source=config.dataset_source,
             seed=config.seed

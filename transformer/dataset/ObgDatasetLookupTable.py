@@ -52,7 +52,6 @@ class MyPygGraphPropPredDataset(PygGraphPropPredDataset):
         if dist.is_initialized():
             dist.barrier()
 
-
 class OGBDatasetLookupTable:
     @staticmethod
     def GetOGBDataset(dataset_name: str, seed: int) -> Optional[Dataset]:
