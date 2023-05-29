@@ -18,9 +18,9 @@ def test_model(args):
 class GraphTransformer:
     def __init__(self, config, **kwargs):
         self.config = config
-        if getattr(self.config, src_vocab, None) is None:
+        if getattr(self.config, self.config.src_vocab, None) is None:
             raise ValueError("Source vocab size not specified")
-        elif getattr(self.config, tgt_vocab, None) is None:
+        elif getattr(self.config, self.config.tgt_vocab, None) is None:
             raise ValueError("Target vocab size not specified")
         attn = MultiHeadedAttention(getattr(self.config, config.h, 4), getattr(config, config.d_model, 32))
         ff = PositionwiseFeedForward(getattr(self.config, self.config.d_model, 32), getattr(self.config, self.config.d_ff, 64), getattr(self.config, self.config.dropout, 0.1))
@@ -31,6 +31,7 @@ class GraphTransformer:
 
     def forward(self, src, src_mask):
         src = self.EncoderStack(src, src_mask)
+        # correct way to do this is to add virtual node and take just the virtual node output
         src = einops.reduce(src, 'batchsize seqlen features -> batchsize features', reduction='mean')
         src = self.generator(src)
         return src
