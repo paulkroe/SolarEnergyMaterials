@@ -1,15 +1,18 @@
 # taken form the implementaion of Graphormer: https://github.com/microsoft/Graphormer
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-
 from typing import Optional
 from ogb.lsc.pcqm4mv2_pyg import PygPCQM4Mv2Dataset
 from ogb.lsc.pcqm4m_pyg import PygPCQM4MDataset
 from ogb.graphproppred import PygGraphPropPredDataset
 from torch_geometric.data import Dataset
-from ..pyg_datasets import GraphormerPYGDataset
 import torch.distributed as dist
 import os
+
+from importlib import reload
+import transformer.dataset.GraphormerPYGDataset
+reload(transformer.dataset.GraphormerPYGDataset)
+
 
 class MyPygPCQM4Mv2Dataset(PygPCQM4Mv2Dataset):
     def download(self):
@@ -98,7 +101,7 @@ class OGBDatasetLookupTable:
         return (
             None
             if inner_dataset is None
-            else GraphormerPYGDataset(
+            else transformer.dataset.GraphormerPYGDataset.GraphormerPYGDataset(
                 inner_dataset, seed, train_idx, valid_idx, test_idx
             )
         )

@@ -11,18 +11,19 @@ import sys
 
 # setsup task (e.g., load dictionaries)
 
+# dataset_spec either "ogbg-molhiv", "ogbg-molpcba", "pcqm4mv2", "pcqm4m"
+
 @register_task('GraphPrediction')
 class GraphPredictionTask(fairseq.tasks.FairseqTask):
     def __init__(self, config):
         super().__init__(config)
         self.config = config
         
-        if getattr(self.config, self.config.dataset_name, None) is None or getattr(self.config, self.config.dataset_source, None) is None or getattr(self.config, self.config.seed, None) is None:
-            raise ValueError("Dataset name, source or seed not specified")
+        if getattr(self.config, self.config.dataset_name, None) is None or getattr(self.config, self.config.seed, None) is None:
+            raise ValueError("Dataset name, seed not specified")
 
         self.dm = ogbGraphormerDataset(
             dataset_spec=config.datasset_name,
-            dataset_source=config.dataset_source,
             seed=config.seed
         )
 

@@ -21,7 +21,7 @@ GraphPrediction Task
 
         -> PygPCQM4MDataset
 
-        (these handle download and are part of ogb library)
+        (these handle download and are part of ogb library, in the original graphormer implementation this class is implemented twice to avoid circular inport)
 
     -> GraphormerPYGDataset (handels data in the end)
 
